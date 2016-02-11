@@ -1,0 +1,17 @@
+baseurl = "http://andreiformiga.com/"
+languageCode = "pt-BR"
+title = "Andrei Formiga"
+
+metaDataFormat = "toml"
+
+home = "início"
+
+[params]
+  topline = "math is hard, let's go shopping!"
+
+  sidebar = "left"
+
+  github = "tautologico"
+  twitter = "andreiformiga"
+  
+  highlight = "default"

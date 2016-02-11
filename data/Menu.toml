@@ -1,0 +1,18 @@
+[about]
+  Name = "Sobre"
+  URL = "/about"
+
+[posts]
+  Name = "Textos"
+  Title = "Lista de textos"
+  URL = "/post"
+
+[tags]
+  Name = "Tags"
+  Title = "Lista de tags"
+  URL = "/tags"
+
+[livroocaml]
+  Name = "Livro de OCaml"
+  Title = "Página do livro 'OCaml: Programação Funcional na Prática'"
+  URL = "/livro/ocaml"
