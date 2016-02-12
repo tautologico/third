@@ -1,18 +1,24 @@
-[about]
+[00about]
   Name = "Sobre"
   URL = "/about"
 
-[posts]
+[01livroocaml]
+  Name = "Livro de OCaml"
+  Title = "Página do livro 'OCaml: Programação Funcional na Prática'"
+  URL = "/livro/ocaml"
+
+[02posts]
   Name = "Textos"
   Title = "Lista de textos"
   URL = "/post"
 
-[tags]
+[03tags]
   Name = "Tags"
   Title = "Lista de tags"
   URL = "/tags"
 
-[livroocaml]
-  Name = "Livro de OCaml"
-  Title = "Página do livro 'OCaml: Programação Funcional na Prática'"
-  URL = "/livro/ocaml"
+[04categorias]
+  Name = "Categorias"
+  Title = "Textos por categoria"
+  URL = "/categories"
+
