@@ -6,6 +6,9 @@ metaDataFormat = "toml"
 
 home = "início"
 
+[author]
+  name = "Andrei Formiga"
+
 [params]
   topline = "math is hard, let's go shopping!"
 
@@ -14,4 +17,4 @@ home = "início"
   github = "tautologico"
   twitter = "andreiformiga"
   
-  highlight = "default"
+  highlight = "prism"
