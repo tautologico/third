@@ -1,4 +1,4 @@
-/* http://prismjs.com/download.html?themes=prism&languages=clike+c+cpp+fsharp+go+haskell+ocaml+rust&plugins=line-highlight+line-numbers */
+/* http://prismjs.com/download.html?themes=prism&languages=clike+c+cpp+haskell+ocaml+prolog+rust&plugins=line-highlight+line-numbers+normalize-whitespace */
 /**
  * prism.js default theme for JavaScript, CSS and HTML
  * Based on dabblet (http://dabblet.com)
@@ -8,6 +8,7 @@
 code[class*="language-"],
 pre[class*="language-"] {
 	color: black;
+	background: none;
 	text-shadow: 0 1px white;
 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	direction: ltr;
@@ -17,6 +18,7 @@ pre[class*="language-"] {
 	word-break: normal;
 	word-wrap: normal;
 	line-height: 1.5;
+        display: block;
 
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
