@@ -1,6 +1,8 @@
 +++
 date = "2011-07-16T22:07:57-03:00"
 title = "Resolvendo desafios mais complicados com Prolog"
+tags = ["prolog", "puzzles"]
+categories = ["programação"]
 +++
 
 No [post anterior](/post/desafiosprolog) foi mostrado
