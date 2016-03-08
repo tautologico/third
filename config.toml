@@ -6,6 +6,13 @@ metaDataFormat = "toml"
 
 home = "início"
 
+theme = "hyde-y"
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  series = "series"
+
 [author]
   name = "Andrei Formiga"
 
