@@ -1,0 +1,255 @@
++++
+date = "2016-03-07T19:06:05-03:00"
+draft = true
+title = "Calculando Tabelas-Verdade em C -- Fórmulas fixas"
+tags = ["lógica"]
+categories = ["programação"]
+series = ["Tabela-verdade em C"]
++++
+
+Quando estou ensinando Lógica Aplicada à Computação, eu muitas vezes digo
+aos alunos que é simples criar um programa que calcula a tabela-verdade de uma
+fórmula da lógica proposicional. E o cálculo da tabela em si é realmente simples,
+o problema é como o programa vai representar as fórmulas da lógica. Ou seja, para
+calcular a tabela-verdade de qualquer fórmula, talvez escolhida pelo usuário, o
+programa deve ser capaz de representar qualquer fórmula da lógica proposicional.
+Isso não é difícil para quem já tem alguma familiaridade com processadores de
+linguagens, como compiladores e interpretadores, mas pode ser muito novo para
+quem ainda está no começo do curso de Computação (a disciplina de Lógica é
+obrigatória no segundo período).
+
+Neste texto eu vou evitar o problema da representação de fórmulas mostrando
+como calcular a tabela-verdade para uma fórmula fixa. Para cada
+fórmula que se deseje obter a tabela-verdade, é preciso mudar o código. Isso
+está bem longe do ideal, mas é suficiente para mostrar o cálculo da tabela
+em si, sem se preocupar com outras questões. Outros textos nesta série vão
+explorar a representação de fórmulas e uma sintaxe externa para que
+o usuário possa especificar para qual fórmula ele quer calcular uma
+tabela-verdade.
+
+Mas primeiro, um preview. A fórmula que vamos usar como exemplo é
+
+<div>
+$$(P \rightarrow Q) \wedge (\neg Q \vee R)$$
+</div>
+
+e o código que vai calcular o valor desta fórmula é
+
+~~~c
+IMP(I[P], I[Q]) && ((!I[Q]) || I[R])
+~~~
+
+onde `IMP` é uma macro que calcula o valor da implicação. Este código
+é uma tradução transparente da fórmula acima, tirando pelo fato
+que não existe o operador de implicação em C, e que para calcular o
+valor da fórmula usamos o valor da função interpretação de cada
+variável proposicional, `I[]`, ao invés da variável em si.
+
+Fora o cálculo da fórmula em si, as questões mais importantes são
+a representação dos valores de cada variável proposicional, e como
+variar esses valores de maneira organizada para gerar a tabela. A
+impressão da tabela também é importante mas é simples.
+
+### Representação das variáveis
+
+Como vimos, a fórmula será representada diretamente em código C,
+o que só é possível porque o programa só tem a capacidade de
+calcular essa única fórmula. As variáveis proposicionais são
+representadas por dois arrays, um com os nomes de cada uma e
+outra que vai guardar os valores. Definimos também uma constante
+simbólica para guardar o número de variáveis da fórmula:
+
+~~~c
+// numero de variaveis proposicionais na formula
+#define VARS              3
+
+// representacao da formula
+char nome[VARS];     // nome das variaveis
+int I[VARS];         // interpretacao das variaveis
+~~~
+
+O nome das variáveis é usado apenas na impressão da tabela. O
+array `I[]` representa a função interpretação que dá os valores
+das variáveis proposicionais (T ou F); usei o `I` maiúsculo
+por ser similar à notação de alguns livros de lógica para a
+função interpretação. Os valores são representados como
+valores inteiros devido à convenção de usar 0 para o valor
+F e 1 para o valor T (ou V).
+
+A intenção é que a variável 0 seja P, a variável 1 seja Q e
+a variável 2 seja R. Para facilitar a indexação dos arrays
+`nome[]` e `I[]`, definimos as seguintes constantes:
+
+~~~c
+// constantes para os indices das tres variaveis
+#define P                 0
+#define Q                 1
+#define R                 2
+~~~
+
+Assim, `I[P]` representa o valor da variável P, como vemos
+em alguns livros. O núcleo do código que calcula a tabela é
+um loop que varia os valores das variáveis de maneira a explorar
+todas as possíveis interpretações que fazem parte da tabela,
+e imprimir o valor resultante da fórmula para cada interpretação.
+
+### Loop principal
+
+A função `main` do programa apenas chama a função `mostra_tabela_verdade()`,
+que contém o loop principal do programa. Essa função começa assim:
+
+~~~c
+void mostra_tabela_verdade()
+{
+  int fim = FALSE;
+
+  inicializa_formula();
+
+  printf("Formula:\n");
+  printf("H = (P -> Q) /\\ (~Q \\/ R)\n\n");
+
+  for (int c = 0; c < VARS; c++) {
+    printf(" %c |", nome[c]);
+  }
+  printf(" H\n");
+
+  for (int c = 0; c < 4 * VARS + 3; c++)
+    printf("-");
+  printf("\n");
+~~~
+
+Esse começo inicializa os dois arrays que representam as variáveis
+(chamando `inicializa_formula()`) e imprime o cabeçalho da tabela,
+mostrando também a fórmula. A inicialização é simples, estabelecendo
+os nomes das variáveis e os seus valores iniciais, com todas
+tendo valor F (representado em C como 0 ou a constante `FALSE`).
+
+~~~c
+void inicializa_formula()
+{
+  nome[P] = 'P';
+  nome[Q] = 'Q';
+  nome[R] = 'R';
+
+  for (int c = 0; c < VARS; c++)
+    I[c] = FALSE;
+}
+~~~
+
+Voltando à função `mostra_tabela_verdade()`, o loop principal
+tem o seguinte formato:
+
+~~~c
+while (!fim) {
+  // imprime valores atuais das variaveis
+
+  // calcula e imprime o valor da formula
+
+  // verifica se acabou a tabela ou passa para
+  // a proxima linha
+}
+~~~
+
+No código, isso fica
+
+~~~c
+  while (!fim) {
+    // imprime valores atuais das variaveis
+    for (int c = 0; c < VARS; c++) {
+      if (I[c])
+        printf(" T |");
+      else
+        printf(" F |");
+    }
+
+    // calcula e imprime o valor da formula
+    if (valor_formula())
+      printf(" T\n");
+    else
+      printf(" F\n");
+
+    // verifica se acabou a tabela ou passa para
+    // a proxima linha
+    if (ultima_interpretacao())
+      fim = TRUE;
+    else
+      proxima_interpretacao();
+  }
+~~~
+
+A impressão dos valores das variáveis é um loop que imprime
+T ou F dependendo do valor de cada uma. Para calcular o valor
+da fórmula é chamada a função `valor_formula()`, cuja parte
+principal já vimos antes:
+
+~~~c
+int valor_formula()
+{
+  return IMP(I[P], I[Q]) && ((!I[Q]) || I[R]);
+}
+~~~
+
+A macro `IMP` calcula o valor do conectivo implicação usando
+o operador ternário:
+
+~~~c
+#define IMP(b1, b2)       (b1 && !b2 ? FALSE : TRUE)
+~~~
+
+Para uma fórmula $P -> Q$, o conectivo implicação da lógica proposicional
+tem valor F apenas quando P tiver valor T e Q tiver valor F. O teste
+verifica se esse é o caso e retorna F se for, e T caso contrário.
+
+Voltando ao loop principal, a última parte é
+
+~~~c
+    if (ultima_interpretacao())
+      fim = TRUE;
+    else
+      proxima_interpretacao();
+~~~
+
+Se os valores da variáveis correspondem à última interpretação na tabela,
+o loop é finalizado (a variável `fim` é a condição do loop). Caso contrário,
+os valores devem ser alterados para a próxima linha da tabela.
+
+A função `ultima_interpretacao()` faz o teste que determina se os valores
+atuais das variáveis correspondem à última linha da tabela:
+
+~~~c
+// retorna TRUE se a interpretacao atual eh a ultima na tabela-verdade
+int ultima_interpretacao()
+{
+  int res = 1;
+
+  for (int c = 0; c < VARS; c++) {
+    res = res && I[c];
+  }
+
+  return res;
+}
+~~~
+
+Pela ordem usada no programa, a primeira linha da tabela começa
+com todas as variáveis com valor F e termina com todas as variáveis
+com valor T. O loop na função `ultima_interpretacao()` apenas verifica
+se todos os valores são T.
+
+Para alterar os valores das variáveis para a próxima linha, é chamada
+a função `proxima_interpretacao()`
+
+~~~c
+// altera a interpretacao atual no array I[] para a proxima na
+// ordem da tabela-verdade
+void proxima_interpretacao()
+{
+  int c = VARS - 1;
+
+  while (c >= 0 && I[c] != 0) {
+    I[c--] = 0;
+  }
+
+  if (c >= 0)
+    I[c] = 1;
+}
+~~~
