@@ -27,7 +27,7 @@ explorar a representação de fórmulas e uma sintaxe externa para que
 o usuário possa especificar para qual fórmula ele quer calcular uma
 tabela-verdade.
 
-Mas primeiro, um preview. A fórmula que vamos usar como exemplo é
+Antes de começar, um preview. A fórmula que vamos usar como exemplo é
 
 <div>
 $$(P \rightarrow Q) \wedge (\neg Q \vee R)$$
@@ -49,6 +49,77 @@ Fora o cálculo da fórmula em si, as questões mais importantes são
 a representação dos valores de cada variável proposicional, e como
 variar esses valores de maneira organizada para gerar a tabela. A
 impressão da tabela também é importante mas é simples.
+
+Antes de falar sobre os detalhes do código, vamos definir os termos
+e conceitos utilizados.
+
+### Lógica proposicional e tabelas-verdade
+
+A lógica proposicional lida com fórmulas que são formadas pela
+combinação de variáveis proposicionais usando um conjunto de conectivos.
+As variáveis proposicionais representam proposições, originalmente
+criadas para modelar frases afirmativas que podem ser avaliadas como
+verdadeiras ou falsas; por exemplo, "está chovendo" pode ser uma
+proposição. Na verdade, proposições podem modelar várias coisas
+que sempre estão em um de dois estados possíveis: verdadeiro ou
+falso, 0 ou 1, corrente baixa ou corrente alta, etc.
+
+Os conectivos geralmente usados na lógica proposicional são cinco:
+
+* conjunção ou E-lógico, símbolo ∧
+* disjunção ou OU-lógico, símbolo ∨
+* negação, símbolo ¬
+* implicação ou condicional, símbolo →
+* bi-implicação ou bicondicional, símbolo ↔
+
+Para determinar o valor de verdade de uma fórmula como
+
+<div>
+$$P \wedge \neg Q$$
+</div>
+
+é preciso conhecer o valor de verdade das variáveis proposicionais
+que fazem parte da fórmula (no exemplo, P e Q); dado isto, as regras
+dos conectivos são fixas e permitem calcular o valor da fórmula.
+Formalmente, é comum definir uma função interpretação ou função
+valoração que mapeia cada variável proposicional para um valor
+de verdade, e a partir disto obter o valor da fórmula. Usaremos
+como valores de verdade os símbolos T e F.
+
+Uma tabela-verdade é uma maneira de listar todos os possíveis
+valores de uma fórmula, de acordo com cada possível combinação
+de valores de verdade para as variáveis proposicionais. Cada
+linha de uma tabela-verdade lista uma possível função interpretação
+para as variáveis, e o valor da fórmula para esta interpretação.
+
+Por exemplo, para uma fórmula contendo apenas uma implicação, a
+tabela-verdade é:
+
+<div>
+$$\begin{array}{cc|c}
+  P & Q & P \rightarrow Q \\
+  \hline
+  F & F & T \\
+  F & T & T \\
+  T & F & F \\
+  T & T & T
+\end{array}$$
+</div>
+
+Essa tabela especifica completamente o comportamento do conectivo
+implicação. Vamos padronizar a ordem das linhas da tabela começando
+com todas as variáveis com valor F e terminando com todas as
+variáveis com valor T, como na tabela anterior. Outra forma de ver
+essa ordem é pensar que o valor F é um zero e um valor T é um 1, e
+que seguimos a ordem dos números binários: 00, 01, 10, 11 para duas
+variáveis proposicionais.
+
+No programa em C, representamos F pelo valor 0 e T pelo valor 1,
+como é usual nesta linguagem. Também usamos as constantes simbólicas
+`TRUE` e `FALSE`.
+
+Agora podemos discutir o programa que calcula a tabela-verdade,
+começando pela representação das fórmulas da lógica.
 
 ### Representação das variáveis
 
@@ -196,7 +267,7 @@ o operador ternário:
 #define IMP(b1, b2)       (b1 && !b2 ? FALSE : TRUE)
 ~~~
 
-Para uma fórmula $P -> Q$, o conectivo implicação da lógica proposicional
+Para uma fórmula P -> Q, o conectivo implicação da lógica proposicional
 tem valor F apenas quando P tiver valor T e Q tiver valor F. O teste
 verifica se esse é o caso e retorna F se for, e T caso contrário.
 
