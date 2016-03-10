@@ -166,11 +166,11 @@ e imprimir o valor resultante da fórmula para cada interpretação.
 
 ### Loop principal
 
-A função `main` do programa apenas chama a função `mostra_tabela_verdade()`,
+A função `main` do programa apenas chama a função `mostra_tabela()`,
 que contém o loop principal do programa. Essa função começa assim:
 
 ~~~c
-void mostra_tabela_verdade()
+void mostra_tabela()
 {
   int fim = FALSE;
 
@@ -207,7 +207,7 @@ void inicializa_formula()
 }
 ~~~
 
-Voltando à função `mostra_tabela_verdade()`, o loop principal
+Voltando à função `mostra_tabela()`, o loop principal
 tem o seguinte formato:
 
 ~~~c
@@ -324,3 +324,60 @@ void proxima_interpretacao()
     I[c] = 1;
 }
 ~~~
+
+Essa é a única parte do programa que é menos fácil de entender.
+O propósito da função `proxima_interpretacao()` é obter a próxima função
+interpretação que será mostrada na tabela, ou seja, a próxima combinação
+de valores T e F para as variáveis proposicionais da fórmula. Para isso
+usamos o fato que estamos representando os valores T e F com os inteiros
+1 e 0, respectivamente. A sequência de interpretações segue a ordem
+binária, como já discutido antes. Portanto, o que
+`proxima_interpretacao()` faz é incrementar um número binário, cuidando
+do vai-um quando necessário. Por exemplo, se na interpretação atual temos
+P com valor F, Q com valor T e R com valor T, isso equivale à sequência
+binária 011 (que pode ser lido como o número 3 em decimal). A próxima
+interpretação nesse caso é 100 (4 em decimal), que é o resultado de
+incrementar em um o valor 011.
+
+Para isso, a função varre os valores atuais (no array `I[]`) de trás
+para frente, começando do último (que é interpretado como o bit menos
+significativo). Essa varredura continua enquanto houver dígitos 1
+(que são alterados para 0) e para ao chegar no começo do array ou
+quando encontra um 0 (que é alterado para 1). Por exemplo, para
+100 o loop termina logo na posição mais à direita, alterando o 0
+da direita para um, o que resulta em 101; por outro lado, se a
+interpretação atual corresponde a 011, o loop altera os dois dígitos 1
+mais à direita para 0, e para no 0 mais à esquerda, alterando-o para um,
+com resultado 100 (como esperado).
+
+Juntando tudo, a função `main` chama `mostra_tabela()` e imprime a
+tabela-verdade da fórmula escolhida:
+
+~~~text
+ P | Q | R | H
+---------------
+ F | F | F | T
+ F | F | T | T
+ F | T | F | F
+ F | T | T | T
+ T | F | F | F
+ T | F | T | F
+ T | T | F | F
+ T | T | T | T
+~~~
+
+Para obter a tabela de outras fórmulas, é preciso alterar o código. O
+principal é mudar a função `valor_formula()`, que é a que efetivamente
+calcula o valor da fórmula para a interpretação atual. Mas também é
+preciso prestar atenção à constante simbólica `VARS`, que indica o número
+de variáveis proposicionais da fórmula, e a inicialização dos arrays na
+função `inicializa_formula()`. Com esses cuidados, é fácil mudar o programa
+para imprimir a tabela-verdade de qualquer fórmula que se queira.
+
+Mas o ideal é ter um programa que tenha a flexibilidade de imprimir a
+tabela-verdade de qualquer fórmula recebida como entrada. De preferência,
+o usuário deve poder especificar a fórmula em uma sintaxe que faça sentido
+para quem não conhece os detalhes internos do programa; por exemplo, uma
+sintaxe similar à dos livros de lógica. Essas capacidades requerem muito
+mais código e novas técnicas, como será visto. A lição importante deste
+texto é que o cálculo da tabela-verdade em si não é difícil.
