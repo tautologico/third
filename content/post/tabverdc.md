@@ -124,10 +124,10 @@ começando pela representação das fórmulas da lógica.
 ### Representação das variáveis
 
 Como vimos, a fórmula será representada diretamente em código C,
-o que só é possível porque o programa só tem a capacidade de
+o que é possível porque o programa só tem a capacidade de
 calcular essa única fórmula. As variáveis proposicionais são
-representadas por dois arrays, um com os nomes de cada uma e
-outra que vai guardar os valores. Definimos também uma constante
+representadas por dois arrays, um para os nomes e
+outro para os valores das variáveis. Definimos também uma constante
 simbólica para guardar o número de variáveis da fórmula:
 
 ~~~c
@@ -147,7 +147,8 @@ função interpretação. Os valores são representados como
 valores inteiros devido à convenção de usar 0 para o valor
 F e 1 para o valor T (ou V).
 
-A intenção é que a variável 0 seja P, a variável 1 seja Q e
+Como a fórmula é fixa e só usa as variáveis P, Q e R, a intenção
+é que a variável 0 seja P, a variável 1 seja Q e
 a variável 2 seja R. Para facilitar a indexação dos arrays
 `nome[]` e `I[]`, definimos as seguintes constantes:
 
@@ -159,7 +160,7 @@ a variável 2 seja R. Para facilitar a indexação dos arrays
 ~~~
 
 Assim, `I[P]` representa o valor da variável P, como vemos
-em alguns livros. O núcleo do código que calcula a tabela é
+em alguns livros. O núcleo do código que calcula a tabela-verdade é
 um loop que varia os valores das variáveis de maneira a explorar
 todas as possíveis interpretações que fazem parte da tabela,
 e imprimir o valor resultante da fórmula para cada interpretação.
@@ -267,7 +268,8 @@ o operador ternário:
 #define IMP(b1, b2)       (b1 && !b2 ? FALSE : TRUE)
 ~~~
 
-Para uma fórmula P -> Q, o conectivo implicação da lógica proposicional
+Como vimos anteriormente, para uma fórmula P -> Q, o conectivo
+implicação da lógica proposicional
 tem valor F apenas quando P tiver valor T e Q tiver valor F. O teste
 verifica se esse é o caso e retorna F se for, e T caso contrário.
 
@@ -301,7 +303,7 @@ int ultima_interpretacao()
 }
 ~~~
 
-Pela ordem usada no programa, a primeira linha da tabela começa
+Pela ordem fixada para as linhas da tabela, a primeira linha começa
 com todas as variáveis com valor F e termina com todas as variáveis
 com valor T. O loop na função `ultima_interpretacao()` apenas verifica
 se todos os valores são T.
@@ -325,7 +327,7 @@ void proxima_interpretacao()
 }
 ~~~
 
-Essa é a única parte do programa que é menos fácil de entender.
+Essa é a única parte um pouco mais complicada deste programa.
 O propósito da função `proxima_interpretacao()` é obter a próxima função
 interpretação que será mostrada na tabela, ou seja, a próxima combinação
 de valores T e F para as variáveis proposicionais da fórmula. Para isso
@@ -335,7 +337,7 @@ binária, como já discutido antes. Portanto, o que
 `proxima_interpretacao()` faz é incrementar um número binário, cuidando
 do vai-um quando necessário. Por exemplo, se na interpretação atual temos
 P com valor F, Q com valor T e R com valor T, isso equivale à sequência
-binária 011 (que pode ser lido como o número 3 em decimal). A próxima
+binária 011 (que pode ser lida como o número 3 em decimal). A próxima
 interpretação nesse caso é 100 (4 em decimal), que é o resultado de
 incrementar em um o valor 011.
 
