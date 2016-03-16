@@ -119,7 +119,9 @@ como é usual nesta linguagem. Também usamos as constantes simbólicas
 `TRUE` e `FALSE`.
 
 Agora podemos discutir o programa que calcula a tabela-verdade,
-começando pela representação das fórmulas da lógica.
+começando pela representação das fórmulas da lógica. Para quem
+quiser acompanhar a discussão com o código completo, o [programa
+está disponível aqui](https://gist.github.com/tautologico/ae06d2587eece93e184b).
 
 ### Representação das variáveis
 
@@ -369,7 +371,7 @@ tabela-verdade da fórmula escolhida:
 ~~~
 
 Para obter a tabela de outras fórmulas, é preciso alterar o código. O
-principal é mudar a função `valor_formula()`, que é a que efetivamente
+principal é mudar a função `valor_formula()`, que
 calcula o valor da fórmula para a interpretação atual. Mas também é
 preciso prestar atenção à constante simbólica `VARS`, que indica o número
 de variáveis proposicionais da fórmula, e a inicialização dos arrays na
@@ -383,3 +385,8 @@ para quem não conhece os detalhes internos do programa; por exemplo, uma
 sintaxe similar à dos livros de lógica. Essas capacidades requerem muito
 mais código e novas técnicas, como será visto. A lição importante deste
 texto é que o cálculo da tabela-verdade em si não é difícil.
+
+O [código completo do programa](https://gist.github.com/tautologico/ae06d2587eece93e184b)
+está disponível como um gist.
+
+Veja outros textos da série [Tabela-verdade em C](/series/tabela-verdade-em-c).
