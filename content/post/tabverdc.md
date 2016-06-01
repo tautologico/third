@@ -1,6 +1,5 @@
 +++
 date = "2016-03-07T19:06:05-03:00"
-draft = true
 title = "Calculando Tabelas-Verdade em C -- Fórmulas fixas"
 tags = ["lógica"]
 categories = ["programação"]
