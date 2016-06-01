@@ -1,0 +1,25 @@
+\begin{figure}[ht]
+\begin{center}
+\begin{tikzpicture}[level distance=0.8cm]
+\tikzstyle{level 1}=[sibling distance=25mm]
+\tikzstyle{level 2}=[sibling distance=12mm]
+
+  % \node (tt) at (0.0, 0.0) {Cons}
+  %   child { node {1} }
+  %   child { node {Cons} };
+
+  \node (troot) at (0.0, 0.0) {$\wedge$}
+    child { node {$\rightarrow$}
+      child { node {$P$} }
+      child { node {$Q$}  }
+    }
+    child { node {$\vee$} 
+      child { node {$\neg$}
+        child { node {$Q$} }
+      }
+      child { node {$R$} }
+    };
+
+\end{tikzpicture}
+\end{center}
+\end{figure}

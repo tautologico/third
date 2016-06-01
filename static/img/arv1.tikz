@@ -1,0 +1,16 @@
+\begin{figure}[ht]
+\begin{center}
+\begin{tikzpicture}
+  [level distance=0.8cm,
+   sibling distance=3.6em]
+  % \node (tt) at (0.0, 0.0) {Cons}
+  %   child { node {1} }
+  %   child { node {Cons} };
+
+  \node (troot) at (0.0, 0.0) {$+$}
+    child { node {2} }
+    child { node {3} };
+
+\end{tikzpicture}
+\end{center}
+\end{figure}
