@@ -224,3 +224,198 @@ and(var_p(), var_q())
 Que constrói uma árvore na memória com a seguinte estrutura:
 
 ![Diagrama para P AND Q](/img/diag_pandq.png)
+
+Agora já temos a infra-estrutura necessária para descrever _quase_ qualquer
+fórmula da lógica proposicional; quase porque a forma de representar as
+variáveis ainda é limitada, falaremos mais sobre isso adiante. A nossa
+fórmula de exemplo,
+
+<div>
+$$(P \rightarrow Q) \wedge (\neg Q \vee R)$$
+</div>
+
+é construída no programa com o seguinte código:
+
+~~~c
+Formula *f =
+  and(imp(var_p(), var_q()),
+      or(neg(var_q()), var_r()));
+
+~~~
+
+Com uma representação para as fórmulas, podemos criar uma função
+`valor_formula` mais geral, que calcula o valor para qualquer fórmula
+que podemos representar.
+
+### Calculando o valor
+
+A versão anterior da função `valor_formula` dependia da interpretação
+desejada para as variáveis proposicionais (usada como uma variável global),
+e a fórmula para calcular era fixa, representada diretamente no código.
+
+Agora que temos uma representação para fórmulas, vamos fazer uma versão
+do cálculo do valor que recebe a fórmula desejada como parâmetro:
+
+~~~c
+int valor_formula(Formula *f)
+{
+  switch(f->tipo) {
+
+~~~
+
+A forma de calcular o valor da fórmula depende do seu tipo, então
+começamos com um `switch` nesse campo.
+
+Para variáveis proposicionais, o valor é imediatamente obtido da
+interpretação, como antes:
+
+~~~c
+  case P:
+  case Q:
+  case R:
+      return I[indice_variavel(f->tipo)];
+
+~~~
+
+O único detalhe é que precisamos obter o índice da variável na
+interpretação. No código, foi criado um mapeamento que coloca
+a variável P com índice 0, Q com índice 1, etc. Seria melhor ter
+um tratamento mais geral para as variáveis, mas (novamente) isso
+é algo que vai ser comentado depois.
+
+Se a fórmula for uma negação de outra fórmula (guardada como operando
+direito da fórmula `f`), precisamos obter o valor dessa outra fórmula
+e então negar o resultado:
+
+~~~c
+  case NEG:
+      return !valor_formula(f->dir);
+
+~~~
+
+Funções de obter o valor de expressões são naturalmente recursivas, já
+que para saber o valor da expressão completa precisamos obter o valor das
+sub-expressões que aparecem. Os outros conectivos são similares, para
+um conectivo binário como o `AND` precisamos obter o valor dos dois operandos
+e então fazer o `AND` dos resultados:
+
+~~~c
+  case AND:
+      return valor_formula(f->dir) &&
+             valor_formula(f->esq);
+
+~~~
+
+A função completa é
+
+~~~c
+int valor_formula(Formula *f)
+{
+  switch(f->tipo) {
+  case P:
+  case Q:
+  case R:
+      return I[indice_variavel(f->tipo)];
+
+  case NEG:
+      return !valor_formula(f->dir);
+
+  case AND:
+      return valor_formula(f->dir) &&
+             valor_formula(f->esq);
+
+  case OR:
+      return valor_formula(f->dir) ||
+             valor_formula(f->esq);
+
+  case IMP:
+      return IMPVAL(valor_formula(f->dir),
+                    valor_formula(f->esq));
+
+  case BIMP:
+      return BIMPVAL(valor_formula(f->dir),
+                     valor_formula(f->esq));
+  }
+}
+~~~
+
+As macros `IMPVAL` e `BIMPVAL` usadas nessa função calculam o valor
+de uma implicação e bi-implicação, e são fáceis de definir:
+
+~~~c
+#define IMPVAL(b1, b2)  (b1 && !b2 ? FALSE : TRUE)
+#define BIMPVAL(b1, b2) (b1 == b2)
+
+~~~
+
+O resto da maquinaria para construir a tabela-verdade continua igual
+ao programa anterior, apenas vamos mudar a função `mostra_tabela`
+para receber a fórmula desejada como parâmetro:
+
+~~~c
+void mostra_tabela(Formula *f)
+
+~~~
+
+A fórmula `f` é usada em `mostra_tabela` quando é necessário
+chamar `valor_formula`, que recebe `f` como parâmetro. A função
+`main` constrói a fórmula logo antes de passá-la como parâmetro
+para `mostra_tabela`:
+
+~~~c
+int main(int argc, char **argv)
+{
+  // (P -> Q) /\ (~Q \/ R)
+  Formula *f =
+    and(imp(var_p(), var_q()),
+        or(neg(var_q()), var_r()));
+
+  printf("Calculo de tabela-verdade\n\n");
+
+  mostra_tabela(f);
+
+  destroi_formula(f);
+
+  return 0;
+}
+
+~~~
+
+Como a fórmula é alocada dinamicamente com `malloc`, é preciso
+liberar essa memória, o que é feito pela função `destroi_formula`.
+Detalhes no programa completo.
+
+De resto, o funcionamento do programa é o mesmo
+[da versão anterior](/post/tabverdc): imprime a tabela-verdade para
+uma fórmula que está no código.
+
+### O que ganhamos?
+
+Nesse ponto parece que após algumas voltas, paramos no mesmo lugar: a
+fórmula continua fixa e determinada no código; para mudar a fórmula,
+é preciso alterar o código, recompilar, e só então ver o resultado
+durante a execução do programa.
+
+Mas ter uma representação interna para qualquer fórmula cria a
+possibilidade do usuário poder entrar a fórmula desejada e o
+programa calcular a tabela-verdade para a fórmula entrada;
+as funções `mostra_tabela` e `valor_formula` são gerais e
+funcionam para qualquer fórmula que seja representada pelo
+tipo `Formula`. A peça que falta é receber a entrada do usuário
+e, a partir dela, construir a representação da fórmula entrada
+usando o tipo `Formula`. Essa é a tarefa da análise sintática,
+que será tratada no próximo texto desta série.
+
+Um problema da representação usada são as variáveis proposicinais:
+o código fixa três variáveis (P, Q e R) que as fórmulas podem usar.
+Para outras variáveis, é possível mudar o código para incluir outras,
+com cuidado de mudar as partes do programa que tratam das variáveis.
+Mas isso depende de mudar o código e cria um problema de usabilidade:
+o programa deve dizer ao usuário que ele só pode usar tais variáveis
+nas suas fórmulas, o que é limitante. Isso pode ser resolvido
+com técnicas de _tabelas de símbolos_, que serão assunto para outros
+textos futuros da série.
+
+O código completo está disponível.
+
+Veja outros textos da série [Tabela-verdade em C](/series/tabela-verdade-em-c).
