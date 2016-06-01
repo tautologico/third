@@ -291,7 +291,8 @@ A função `ultima_interpretacao()` faz o teste que determina se os valores
 atuais das variáveis correspondem à última linha da tabela:
 
 ~~~c
-// retorna TRUE se a interpretacao atual eh a ultima na tabela-verdade
+// retorna TRUE se a interpretacao atual
+// eh a ultima na tabela-verdade
 int ultima_interpretacao()
 {
   int res = 1;
@@ -313,8 +314,8 @@ Para alterar os valores das variáveis para a próxima linha, é chamada
 a função `proxima_interpretacao()`
 
 ~~~c
-// altera a interpretacao atual no array I[] para a proxima na
-// ordem da tabela-verdade
+// altera a interpretacao atual no array I[]
+// para a proxima na ordem da tabela-verdade
 void proxima_interpretacao()
 {
   int c = VARS - 1;
