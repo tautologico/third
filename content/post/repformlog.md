@@ -1,7 +1,6 @@
 +++
 author = "Andrei Formiga"
 date = "2016-04-19T17:31:49-03:00"
-draft = true
 tags = ["lógica"]
 title = "Representação de Fórmulas da Lógica"
 Type = "post"
@@ -115,8 +114,13 @@ seria:
 </center>
 
 Expressões (fórmulas) da lógica proposicional seguem a mesma ideia, com
-os conectivos funcionando como operadores. A árvore para a fórmula usada
-como exemplo no post anterior é
+os conectivos funcionando como operadores. A árvore para a fórmula
+
+<div>
+$$(P \rightarrow Q) \wedge (\neg Q \vee R)$$
+</div>
+
+usada como exemplo no [post anterior](/post/tabverdc) é
 <center>
 ![Árvore para fórmula](/img/arv4.png)
 </center>
@@ -127,13 +131,13 @@ A questão agora é como representar essas árvores em código C.
 
 Nosso objetivo é criar um tipo `Formula` que possa representar qualquer
 fórmula da lógica proposicional. Como vimos na seção anterior, esse tipo
-vai poder representar as árvores sintáticas das fórmulas. Para isso
+deve representar as árvores sintáticas das fórmulas. Para isso
 vamos criar uma estrutura encadeada onde cada nó da árvore possui ponteiros
 para dois possíveis filhos. Os nós da árvore são representados pelo tipo
 `Formula`, sendo que a fórmula inteira é simplesmente o nó que representa
 a raiz da árvore. O tipo `Formula` contém um campo que determina o tipo do
 nó, que pode ser um dos operadores ou uma das variáveis proposicionais; o
-tipo do nó é representado em C pelo tipo `tipo`, uma enumeração:
+tipo do nó é representado em C pelo tipo `Tipo`, uma enumeração:
 
 ~~~c
 typedef enum tagTipo {
@@ -141,6 +145,8 @@ typedef enum tagTipo {
 } Tipo;
 ~~~
 
+Por essa definição, cada nó da árvore pode representar um dos cinco
+conectivos lógicos, ou as variáveis proposicionais P, Q e R.
 Além do tipo do nó, cada nó possui também ponteiros para até dois filhos,
 de forma que a definição do tipo `Formula` é:
 
@@ -177,8 +183,8 @@ Formula* cria_formula(Tipo tipo, Formula *dir, Formula *esq)
 
 A função `cria_formula` aloca espaço para um novo nó da árvore,
 e inicializa os campos do nó corretamente de acordo com as informações
-passadas. Com essa função criamos funções mais simplificadas para
-criar variáveis e fórmulas com conectivos. Por exemplo, para criar
+passadas. Usando essa função como base, criamos funções mais simplificadas
+para criar variáveis e fórmulas com conectivos. Por exemplo, para criar
 uma fórmula apenas com a variável P:
 
 ~~~c
@@ -210,8 +216,8 @@ Formula* and(Formula *d, Formula *e)
 }
 ~~~
 
-Outras funções estão disponíveis no código completo. Com essas funções
-auxiliares podemos criar a fórmula
+Outras funções estão disponíveis no [código completo](https://gist.github.com/tautologico/27674bd5a529787bc889414d11782876).
+Com essas funções auxiliares podemos criar a fórmula
 <div>
 $$P \wedge Q$$
 </div>
@@ -226,8 +232,8 @@ Que constrói uma árvore na memória com a seguinte estrutura:
 ![Diagrama para P AND Q](/img/diag_pandq.png)
 
 Agora já temos a infra-estrutura necessária para descrever _quase_ qualquer
-fórmula da lógica proposicional; quase porque a forma de representar as
-variáveis ainda é limitada, falaremos mais sobre isso adiante. A nossa
+fórmula da lógica proposicional; _quase_ porque a forma de representar as
+variáveis ainda é limitada; falaremos mais sobre isso adiante. A nossa
 fórmula de exemplo,
 
 <div>
@@ -383,7 +389,7 @@ int main(int argc, char **argv)
 
 Como a fórmula é alocada dinamicamente com `malloc`, é preciso
 liberar essa memória, o que é feito pela função `destroi_formula`.
-Detalhes no programa completo.
+O código desta função também pode ser visto no [programa completo](https://gist.github.com/tautologico/27674bd5a529787bc889414d11782876).
 
 De resto, o funcionamento do programa é o mesmo
 [da versão anterior](/post/tabverdc): imprime a tabela-verdade para
@@ -406,7 +412,7 @@ e, a partir dela, construir a representação da fórmula entrada
 usando o tipo `Formula`. Essa é a tarefa da análise sintática,
 que será tratada no próximo texto desta série.
 
-Um problema da representação usada são as variáveis proposicinais:
+Um problema da representação usada são as variáveis proposicionais:
 o código fixa três variáveis (P, Q e R) que as fórmulas podem usar.
 Para outras variáveis, é possível mudar o código para incluir outras,
 com cuidado de mudar as partes do programa que tratam das variáveis.
@@ -416,6 +422,6 @@ nas suas fórmulas, o que é limitante. Isso pode ser resolvido
 com técnicas de _tabelas de símbolos_, que serão assunto para outros
 textos futuros da série.
 
-O código completo está disponível.
+O código completo [está disponível no Github](https://gist.github.com/tautologico/27674bd5a529787bc889414d11782876).
 
 Veja outros textos da série [Tabela-verdade em C](/series/tabela-verdade-em-c).
