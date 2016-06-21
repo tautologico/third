@@ -1,0 +1,21 @@
+\begin{figure}[ht]
+\begin{center}
+\begin{tikzpicture}
+  [level distance=0.8cm]
+\tikzstyle{level 1}=[sibling distance=25mm]
+\tikzstyle{level 2}=[sibling distance=17mm]
+
+  % \node (tt) at (0.0, 0.0) {Cons}
+  %   child { node {1} }
+  %   child { node {Cons} };
+
+  \node (troot) at (0.0, 0.0) {Soma}
+    child { node {Const 2} }
+    child { node {Mult} 
+      child { node {Const 3} }
+      child { node {Const 4} } 
+    };
+
+\end{tikzpicture}
+\end{center}
+\end{figure}
