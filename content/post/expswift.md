@@ -10,9 +10,9 @@ type = "post"
 
 +++
 
-Quando se fala em programação funcional, uma pergunta importante dos que já não estão
-convencidos é "por que aprender programação funcional?" Autores de livros e palestrantes
-normalmente já se antecipam e respondem essa pergunta no começo.
+Quando se fala em programação funcional, uma pergunta importante é
+"por que aprender programação funcional?" Autores de livros e palestrantes
+normalmente já se antecipam e respondem a essa pergunta no começo.
 
 Os motivos são vários mas uma boa parte deles está focada em um objetivo maior: se tornar
 um programador melhor. Esse objetivo está relacionado a motivos mais filosóficos e
@@ -145,7 +145,7 @@ enum Exp {
 ~~~
 
 O caso `Const` representa constantes inteiras, contendo um valor associado do
-tipo `Int`, enquanto que os outros casos representam operações binárias
+tipo `Int`, enquanto que os outros casos representam operações binárias.
 Uma particularidade é que Swift divide os tipos em tipos de referência e tipos
 de valor (_value types_), e as `enum`s são tipos de valor. Isso significa que
 os valores associados a cada `case` são armazenados diretamente no espaço de
@@ -252,6 +252,7 @@ O estado da pilha em cada passo é:
 Quando a máquina executa a instrução `soma`, os operandos 3 e 5 são retirados
 da pilha e o resultado da soma deles, 8, é empilhado em seguida.
 
+As instruções da máquina são representadas em Swift com o seguinte tipo:
 ~~~swift
 enum Instrucao {
     case Empilha(Int)
@@ -260,7 +261,13 @@ enum Instrucao {
 
 ~~~
 
-No código Swift (assim como em OCaml, não mostrado aqui) declaramos uma
+(Daqui em diante não vou mostrar o código OCaml equivalente a cada trecho
+em Swift; o
+[código completo desse exemplo em
+OCaml](https://github.com/tautologico/opfp/blob/master/exp/src/exp.ml)
+pode ser visto no github).
+
+No código Swift (assim como em OCaml) declaramos uma
 instrução `Oper` que representa todas as operações binárias; a operação
 específica é definida pelo tipo `Operacao`:
 
