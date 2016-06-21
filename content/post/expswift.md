@@ -212,6 +212,21 @@ func eval(e: Exp) -> Int {
 A versão Swift é um pouco mais prolixa em termos de sintaxe, mas representa
 diretamente as mesmas ideias.
 
+Neste ponto já podemos fazer alguns testes no REPL ou incluindo em um arquivo
+e compilando. Os testes consistem em definir expressões no tipo `Exp` e
+executar o interpretador para verificar se o resultado está correto:
+
+~~~swift
+31> let e1 = Exp.Soma(Exp.Const(2),
+                      Exp.Mult(Exp.Const(3),
+                               Exp.Const(4)))
+e1: Exp ...
+
+32> eval(e1)
+$R0: Int = 14
+
+~~~
+
 Mas Swift não é uma linguagem funcional, então eventualmente vemos algumas
 diferenças quando consideramos uma máquina virtual para expressões.
 
@@ -279,3 +294,263 @@ enum Operacao {
 }
 
 ~~~
+
+O coração de uma máquina de pilha é, obviamente, a pilha. O código em OCaml
+é puramente funcional: a função que executa uma instrução da máquina recebe
+a instrução e a pilha atual, e retorna a pilha resultante após a execução
+da instrução dada; sem efeitos colaterais. Isso funciona e é relativamente
+eficiente em OCaml pelo uso das listas funcionais, que são estruturas
+persistentes que permitem manter versões alteradas de uma lista original
+sem copiar a lista inteira em cada modificação.
+
+Swift, por padrão, não inclui nenhuma estrutura similar. Poderíamos
+definir um tipo de referência usando classes, ou poderíamos usar
+[uma biblioteca já pronta](https://github.com/typelift/Swiftz)
+com listas funcionais, mas eu achei melhor me ater à linguagem básica.
+
+Por isso, a pilha é imperativa na versão Swift. Definimos um tipo para a
+pilha, agrupando a funcionalidade requerida em métodos:
+
+~~~swift
+struct Pilha {
+    var itens = [Int]()
+
+    mutating func empilha(i: Int) {
+        self.itens.append(i)
+    }
+
+    func topo() -> Int? {
+        return self.itens.last
+    }
+
+    mutating func operandos() -> (Int, Int)? {
+        if self.itens.count < 2 {
+            return nil
+        } else {
+            let r1 = self.itens.removeLast()
+            let r2 = self.itens.removeLast()
+            return (r1, r2)
+        }
+    }
+}
+
+~~~
+
+A pilha é implementada usando um _array_ de inteiros; _arrays_ em
+Swift são dinâmicos. Definimos um método para empilhar, um para
+verificar o valor no topo da pilha, e um que obtêm os dois operandos
+de uma operação, se presentes na pilha. Métodos que alteram o valor
+de um tipo `struct` devem ser marcados com a palavra-chave `mutating`.
+
+Com a pilha definida, a execução de instruções da máquina é simples:
+se recebe a instrução de empilhar, a máquina empilha o número contido
+na instrução; se recebe uma instrução de operação, retira dois operandos
+da pilha e aplica a operação. Para simplificar a aplicação da operação,
+usamos uma função que mapeia cada valor `Operacao` na função correspondente.
+Em Swift podemos extender tipos já existentes, por exemplo adicionando
+novos métodos; vamos adicionar o mapeamento dos valores `Operacao` como
+um método no tipo:
+
+~~~swift
+extension Operacao {
+    func oper() -> (Int, Int) -> Int {
+        switch self {
+            case .OpSoma:
+                return (+)
+            case .OpSub:
+                return (-)
+            case .OpMult:
+                return (*)
+        }
+    }
+}
+
+~~~
+
+Com toda a estrutura montada, definimos a função que executa uma instrução
+da máquina, dada a instrução e a pilha inicial:
+
+~~~swift
+func execInst(i: Instrucao, inout pilha: Pilha) {
+    switch i {
+        case let .Empilha(i):
+            pilha.empilha(i)
+        case let .Oper(op):
+            if let (v1, v2) = pilha.operandos() {
+                pilha.empilha(op.oper()(v1, v2))
+            }
+    }
+}
+
+~~~
+
+A função `execInst` segue a ideia discutida antes: se a instrução for para
+empilhar, empilhe; se for uma operação, verifique se é possível desempilhar
+os dois operandos, obtenha a função adequada (`op.oper()`) e aplique essa
+função aos operandos, empilhando o resultado. O uso de ADTs, _pattern matching_
+e funções como valores torna o código compacto e elegante.
+
+Um programa da máquina é uma sequência de instruções, representada no código
+por um _array_ `[Instrucao]`. Para executar um programa basta começar com uma
+pilha vazia e executar cada instrução em sequência:
+
+~~~swift
+func execProg(prog: [Instrucao]) -> Pilha {
+    var p = Pilha()
+    for i in prog {
+        execInst(i, pilha: &p)
+    }
+
+    return p
+}
+
+~~~
+
+Geralmente estamos interessados apenas no valor final do programa; se não houver
+nenhum problema na execução, esse valor estará no topo da pilha, ao final da
+execução. A função `executa` é definida para esse caso de uso:
+
+~~~swift
+func executa(prog: [Instrucao]) -> Int? {
+    let pilha = execProg(prog)
+    return pilha.topo()
+}
+
+~~~
+
+Podemos fazer um pequeno teste, no REPL ou incluindo no arquivo-fonte:
+
+~~~swift
+let p1 = [Instrucao.Empilha(5),
+          Instrucao.Empilha(7),
+          Instrucao.Oper(Operacao.OpSoma),
+          Instrucao.Empilha(10),
+          Instrucao.Oper(Operacao.OpMult)]
+
+if let res = executa(p1) {
+    print("resultado do programa: \(res)")
+} else {
+    print("programa sem resultado")
+}
+
+~~~
+
+Quando executado, esse código deve imprimir o resultado do programa, que é
+120.
+
+Agora só falta o compilador que vai traduzir da linguagem de expressões
+para a linguagem da máquina de pilha.
+
+### Compilador
+
+Felizmente, esse processo de compilação é simples. Para uma expressão `Const`,
+empilhe o valor constante; se a expressão for uma operação, recursivamente
+traduza as duas sub-expressões, concatenando as sequências de instruções
+resultantes, e adicione ao final a operação adequada. O único cuidado é
+com a ordem: o código para o segundo operando (operando direito) das operações
+deve ser adicionado primeiro, para deixar os argumentos na pilha na ordem
+certa para a operação que virá depois (não faz diferença para soma e
+multiplicação, mas faz para a subtração). O código é:
+
+~~~swift
+func compila(e: Exp) -> [Instrucao] {
+    switch e {
+        case let .Const(i):
+            return [Instrucao.Empilha(i)]
+        case let .Soma(e1, e2):
+            var prog = compila(e2)
+            prog.appendContentsOf(compila(e1))
+            prog.append(Instrucao.Oper(Operacao.OpSoma))
+            return prog
+        case let .Sub(e1, e2):
+            var prog = compila(e2)
+            prog.appendContentsOf(compila(e1))
+            prog.append(Instrucao.Oper(Operacao.OpSub))
+            return prog
+        case let .Mult(e1, e2):
+            var prog = compila(e2)
+            prog.appendContentsOf(compila(e1))
+            prog.append(Instrucao.Oper(Operacao.OpMult))
+            return prog
+    }
+}
+
+~~~
+
+E um último teste: vamos definir uma expressão e verificar se avaliar seu
+resultado com o interpretador dá no mesmo que compilar e executar o código
+compilado:
+
+~~~swift
+let e1 = Exp.Mult(Exp.Const(3),
+                  Exp.Soma(Exp.Const(4),
+                           Exp.Const(2)))
+print(eval(e1))
+print(executa(compila(e1))!)
+
+~~~
+
+Isso deve mostrar o mesmo resultado, 18, nas duas impressões.
+
+### Programação funcional é programar com funções, certo?
+
+No final, a versão completa em Swift é bastante similar ao
+código original em OCaml. A única ideia diferente é o uso
+de uma pilha imperativa em Swift ao invés da pilha
+puramente funcional em OCaml; de resto as diferenças são
+apenas sintáticas, com a sintaxe de Swift se mostrando mais
+prolixa: o programa completo em Swift tem cerca de 130 linhas,
+a versão OCaml tem 96, se não contarmos uma função em OCaml
+que não foi definida no programa em Swift (mas a versão em
+OCaml ainda tem mais comentários). Isso indica que Swift tem
+pelo menos algum suporte para código escrito em estilo funcional.
+
+Mas isso vai além do que é mostrado nesse exemplo pequeno, incluindo
+a ênfase da linguagem em programar com _protocolos_ (similares às
+_type classes_ em Haskell) e valores imutáveis. Vide por exemplo
+[esta palestra recente](https://developer.apple.com/videos/play/wwdc2016/419/)
+do pessoal da Apple.
+
+Esses conceitos (e como usá-los efetivamente) nem sempre são óbvios
+para quem não tem experiência com programação funcional. Uma resposta
+comum de alguns programadores ao verem o exemplo deste texto é
+"quando vejo `enum` eu penso no conceito da linguagem C e similares;
+eu nunca pensaria em resolver esse problema desta forma".
+
+Curiosamente, ao ler coisas sobre Swift na web eu encontrei
+[um texto](https://medium.com/@Jernfrost/functional-design-patterns-in-swift-interpreter-169fa164a6ec#.15vd40iv2)
+que também se propõe a criar um interpretador de expressões usando
+programação funcional. É uma leitura interessante e serve como um
+exemplo de uso de funções de alta ordem (funções como valores de
+primeira classe), que o autor usa para representar as árvores de
+sintaxe abstrata. Mas dificilmente um programador funcional
+com alguma experiência usaria uma solução deste tipo. Representar
+a AST com funções é interessante como curiosidade, mas não faz
+sentido na prática; usamos estruturas de dados para a AST porque
+um interpretador ou compilador mais sofisticado não vai apenas
+executar ou traduzir o código diretamente; vai varrer a árvore
+várias vezes, realizando vários tipos de análise no código. Isso
+é difícil, pouco prático ou impossível de fazer com _closures_,
+dependendo da linguagem.
+
+(No final do código em OCaml tem uma função que faz uma otimização
+simples nas expressões, removendo somas em que um dos operandos é
+zero. Isso só é possível porque a AST está representada como uma
+estrutura de dados. Aliás, a versão em Swift desta função fica
+como exercício para o leitor.)
+
+Programação funcional não é apenas "programar com funções". Assim como
+com qualquer paradigma, existem alguns conceitos-chave que são usados
+como resumo para explicar do que se trata a programação funcional,
+mas também existe uma cultura, tradições, forma de resolver os problemas.
+Isso não se aprende de ouvir falar, mas na prática, escrevendo e lendo código,
+falando com pessoas mais experientes no paradigma, e lendo o que eles escrevem.
+Usar uma linguagem do paradigma é uma forma de ficar imerso nessa cultura, de
+se forçar a resolver os problemas de outra forma; é como um antropólogo que vai
+viver no meio do povo que ele quer entender.
+
+O [código original em OCaml](https://github.com/tautologico/opfp/blob/master/exp/src/exp.ml)
+está no github, em um [repositório que contém todos os exemplos](https://github.com/tautologico/opfp)
+do livro.
+
+[Código completo em Swift](https://gist.github.com/tautologico/e93ce90c8fe8bf31c9e867d24b1b8fec)
