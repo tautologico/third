@@ -14,52 +14,59 @@ Quando se fala em programação funcional, uma pergunta importante é
 "por que aprender programação funcional?" Autores de livros e palestrantes
 normalmente já se antecipam e respondem a essa pergunta no começo.
 
-Os motivos são vários mas uma boa parte deles está focada em um objetivo maior: se tornar
-um programador melhor. Esse objetivo está relacionado a motivos mais filosóficos e
-de longo prazo, como a ideia que um bom programador deve conhecer diferentes paradigmas
-e maneiras de organizar e resolver os problemas (vide o [ótimo texto de Peter Norvig sobre
-como se tornar um bom programador](https://pihisall.wordpress.com/2007/03/15/aprenda-a-programar-em-dez-anos/)).
+Os motivos são vários mas uma boa parte deles está focada em um
+objetivo maior: se tornar um programador melhor. Esse objetivo está
+relacionado a motivos mais filosóficos e de longo prazo, como a ideia
+que um bom programador deve conhecer diferentes paradigmas e maneiras
+de organizar e resolver os problemas (vide o
+[ótimo texto de Peter Norvig sobre como se tornar um bom programador](https://pihisall.wordpress.com/2007/03/15/aprenda-a-programar-em-dez-anos/)).
 
-Mas o objetivo de subir de nível na programação também está relacionado a motivos mais diretos
-e pragmáticos: no caso da programação funcional, muitas novas linguagens têm sido criadas com
-forte influência do paradigma funcional, mesmo que não sejam classificadas dentro do paradigma.
+Mas o objetivo de subir de nível na programação também está
+relacionado a motivos mais diretos e pragmáticos: no caso da
+programação funcional, muitas novas linguagens têm sido criadas com
+forte influência do paradigma funcional, mesmo que não sejam
+classificadas dentro do paradigma.
 
-Entre essas novas linguagens criadas com um forte sabor funcional está a linguagem
-[Swift](https://swift.org/) da Apple. Anunciada publicamente há apenas dois anos, Swift
-tem várias característiscas diretamente inspiradas pelas linguagens funcionais. Neste texto
-eu vou mostrar como traduzir um exemplo do [livro de OCaml](http://andreiformiga.com/livro/ocaml)
-para Swift, e vamos ver que algumas partes do código são uma tradução direta, mudando
-apenas a sintaxe; como Swift não é uma linguagem primariamente funcional outras partes
-ficam mais naturais com uma abordagem imperativa e são diferentes da versão em OCaml. Mesmo
-assim, as ideias principais para resolver o problema são definitivamente as mesmas, e resultam
-em uma solução compacta e elegante que nem sempre é óbvia para quem não tem experiência
-com programação funcional.
+Entre essas novas linguagens criadas com um forte sabor funcional está
+a linguagem [Swift](https://swift.org/) da Apple. Anunciada
+publicamente há apenas dois anos, Swift tem várias característiscas
+diretamente inspiradas pelas linguagens funcionais. Neste texto eu vou
+mostrar como traduzir um exemplo do
+[livro de OCaml](http://andreiformiga.com/livro/ocaml) para Swift, e
+vamos ver que algumas partes do código são uma tradução direta,
+mudando apenas a sintaxe; como Swift não é uma linguagem primariamente
+funcional, outras partes ficam mais naturais com uma abordagem
+imperativa e são diferentes da versão em OCaml. Mesmo assim, as ideias
+principais para resolver o problema são definitivamente as mesmas, e
+resultam em uma solução compacta e elegante que nem sempre é óbvia
+para quem não tem experiência com programação funcional.
 
-O exemplo que será traduzido vem do Capítulo 6 [do livro](https://www.casadocodigo.com.br/pages/sumario-ocaml),
-que é um exemplo um pouco maior de programação funcional pura: uma linguagem de expressões
-aritméticas, junto com um interpretador para a linguagem, uma pequena máquina virtual de pilha,
-e um compilador da linguagem de expressões para a máquina virtual.
+O exemplo que será traduzido vem do Capítulo 6
+[do livro](https://www.casadocodigo.com.br/pages/sumario-ocaml), que é
+um exemplo um pouco maior de programação funcional pura: uma linguagem
+de expressões aritméticas, junto com um interpretador para a
+linguagem, uma pequena máquina virtual de pilha, e um compilador da
+linguagem de expressões para a máquina virtual.
 
-Para quem leu o meu livro ou já sabe OCaml (ou alguma linguagem similar como Haskell),
-a versão em Swift será simples de entender. Para quem sabe Swift, a influência funcional
-em características como as `enums` da linguagem ficarão claras, embora programadores de
-experiência principalmente imperativa muitas vezes nunca pensaram em usar `enums` da forma
-que veremos aqui (já ouvi isso de algumas pessoas). Para quem ainda não conhece nenhuma das
-duas linguagens, todos os conceitos principais serão explicados aqui.
+Para quem leu o meu livro ou já sabe OCaml (ou alguma linguagem
+similar como Haskell), a versão em Swift será simples de
+entender. Para quem sabe Swift, a influência funcional em
+características como as `enums` da linguagem ficarão claras, embora
+programadores de experiência principalmente imperativa muitas vezes
+nunca pensaram em usar `enums` da forma que veremos aqui (já ouvi isso
+de algumas pessoas). Para quem ainda não conhece nenhuma das duas
+linguagens, todos os conceitos principais serão explicados aqui.
 
-<!--
-Criada por Chris Lattner (criador também do [LLVM](https://llvm.org),
-um conjunto de ferramentas para criação de compiladores e geradores de código), a linguagem
-foi anunciada publicamente em 2014 pela Apple como a linguagem que iria futuramente substituir
-Object-C como linguagem principal para criar aplicativos para o iOS (além do Mac OS X e outros
-produtos similares como o tvOS). Em 2015, quando da versão 2.0 da linguagem, a Apple anunciou que
-a linguagem Swift e seu ferramental seria aberto como _open source_.
--->
+O código Swift mostrado neste texto não é necessariamente idiomático,
+por dois motivos: primeiro que ainda sou _noob_ na linguagem, e segundo
+porque o código foi traduzido de outra linguagem. De toda forma, começamos
+discutindo como representar expressões em um programa.
+
 
 ### Expressões e sintaxe abstrata
 
 A linguagem objeto que iremos tratar é uma linguagem de expressões aritméticas,
-com operandos constantes, usando três operações aritméticas: soma, subtração e
+com operandos constantes, usando três operações: soma, subtração e
 multiplicação. É uma linguagem simples e que todo mundo deve entender da
 matemática do colégio. Um exemplo é a expressão `2 + 3 * 4`.
 
@@ -70,25 +77,33 @@ essa sintaxe externa, vista pelo usuário final, é chamada de _sintaxe concreta
 Mas como o objetivo é ver o funcionamento de um interpretador e de um compilador
 simples, evitamos a complicação de analisar a sintaxe concreta e trabalhamos
 diretamente com a _sintaxe abstrata_. A sintaxe abstrata é uma representação
-interna da entrada, geralmente uma estrutura de dados que representa o programa
-ou expressão na entrada.
+interna da entrada, geralmente uma estrutura de dados que representa a
+expressão que deve ser processada.
 
 A sintaxe abstrata pode ser representada em uma estrutura de árvore, chamada
 de _árvore de sintaxe abstrata_; em inglês, _Abstract Syntax Tree_ (AST).
 Árvores representam muito bem as relações estruturais presentes na sintaxe
-da maioria das linguagens, incluindo aninhamento e hierarquia.
+da maioria das linguagens, incluindo a capacidade de representar
+relações de aninhamento e hierarquia.
 
-Em uma AST para expressões, os nós internos são operadores e as folhas são os
+Em uma AST para expressões, os nós internos são operadores cujos filhos são
+os operandos; as folhas representam os
 operandos atômicos, aqui sempre números inteiros. A árvore para a expressão
 `2 + 3 * 4` é
 <center>
 ![Árvore para 2+3*4](/img/arv3.png)
 </center>
 
-E, para comparação, a árvore para a expressão `(2 + 3) * 4` é
+Note que a árvore representa explicitamente a precedência entre operadores.
+Para comparação, a árvore para a expressão `(2 + 3) * 4` é
 <center>
 ![Árvore para (2+3)*4](/img/arv2.png)
 </center>
+
+Os parênteses não são necessários na árvore pois sua própria estrutura
+representa a precedência desejada. Essa é uma vantagem de usar uma
+representação hierárquica, ao invés de uma sequência linear de
+símbolos.
 
 Escrevi sobre árvores sintáticas em outro texto recente: [Representação de
 fórmulas da lógica](/post/repformlog). Lá eu falo sobre como representar
@@ -126,7 +141,7 @@ Soma (Const 2, Mult(Const 3, Const 4))
 
 Este valor também pode ser visto graficamente, em um diagrama que deixa claro
 porque usamos tipos variantes para representar árvores sintáticas (note a
-semelhança com a árvore sintática vista anteriormente):
+semelhança com a primeira árvore sintática vista anteriormente):
 <center>
 ![Valor em OCaml para 2 + 3 *4](/img/arvml2.png)
 </center>
@@ -187,11 +202,14 @@ let rec eval e =
 ~~~
 
 Para o caso `Const`, o valor da expressão é o valor da constante. Para os outros
-casos, é preciso obter recursivamente o valor das sub-expressões da operação,
+casos, é preciso obter recursivamente o valor das sub-expressões que são
+operandos da operação,
 e aplicar a operação correspondente aos resultados. É uma daquelas coisas que
-ficam incrivelmente óbvias depois que você já conhece a resposta.
+ficam incrivelmente óbvias depois que você já sabe como fazer, mas nem tanto
+quando você nunca viu antes.
 
-Em Swift o código é praticamente o mesmo, tirando as diferenças sintáticas:
+Em Swift o código é praticamente o mesmo, tirando as diferenças sintáticas
+(Swift é mais prolixa):
 
 ~~~swift
 func eval(e: Exp) -> Int {
@@ -209,20 +227,18 @@ func eval(e: Exp) -> Int {
 
 ~~~
 
-A versão Swift é um pouco mais prolixa em termos de sintaxe, mas representa
-diretamente as mesmas ideias.
-
 Neste ponto já podemos fazer alguns testes no REPL ou incluindo em um arquivo
 e compilando. Os testes consistem em definir expressões no tipo `Exp` e
-executar o interpretador para verificar se o resultado está correto:
+executar o interpretador para verificar se o resultado está correto (aqui
+testando no REPL):
 
 ~~~swift
-31> let e1 = Exp.Soma(Exp.Const(2),
-                      Exp.Mult(Exp.Const(3),
-                               Exp.Const(4)))
+1> let e1 = Exp.Soma(Exp.Const(2),
+                     Exp.Mult(Exp.Const(3),
+                              Exp.Const(4)))
 e1: Exp ...
 
-32> eval(e1)
+2> eval(e1)
 $R0: Int = 14
 
 ~~~
@@ -341,6 +357,13 @@ Swift são dinâmicos. Definimos um método para empilhar, um para
 verificar o valor no topo da pilha, e um que obtêm os dois operandos
 de uma operação, se presentes na pilha. Métodos que alteram o valor
 de um tipo `struct` devem ser marcados com a palavra-chave `mutating`.
+O tipo de retorno do método `topo` é `Int?`, que é um _tipo opcional_
+(em OCaml seria `int option`). Um valor do tipo `Int?` pode conter
+um inteiro ou o valor especial `nil`, que representa a falta de um
+valor. No caso do método `topo`, o valor é opcional porque se a
+pilha estiver vazia, não há nada para retornar. O mesmo ocorre
+no método `operandos`, que retorna os dois inteiros no topo da
+pilha, se a pilha tiver pelo menos dois elementos.
 
 Com a pilha definida, a execução de instruções da máquina é simples:
 se recebe a instrução de empilhar, a máquina empilha o número contido
@@ -418,7 +441,7 @@ func executa(prog: [Instrucao]) -> Int? {
 
 ~~~
 
-Podemos fazer um pequeno teste, no REPL ou incluindo no arquivo-fonte:
+Podemos fazer um pequeno teste, no REPL ou incluindo no arquivo fonte:
 
 ~~~swift
 let p1 = [Instrucao.Empilha(5),
@@ -500,8 +523,8 @@ de uma pilha imperativa em Swift ao invés da pilha
 puramente funcional em OCaml; de resto as diferenças são
 apenas sintáticas, com a sintaxe de Swift se mostrando mais
 prolixa: o programa completo em Swift tem cerca de 130 linhas,
-a versão OCaml tem 96, se não contarmos uma função em OCaml
-que não foi definida no programa em Swift (mas a versão em
+a versão OCaml tem 96, contando apenas as funções que foram
+traduzidas para Swift (mas a versão em
 OCaml ainda tem mais comentários). Isso indica que Swift tem
 pelo menos algum suporte para código escrito em estilo funcional.
 
@@ -512,8 +535,8 @@ _type classes_ em Haskell) e valores imutáveis. Vide por exemplo
 do pessoal da Apple.
 
 Esses conceitos (e como usá-los efetivamente) nem sempre são óbvios
-para quem não tem experiência com programação funcional. Uma resposta
-comum de alguns programadores ao verem o exemplo deste texto é
+para quem não tem experiência com programação funcional. Uma reação
+comum de alguns programadores ao exemplo deste texto é
 "quando vejo `enum` eu penso no conceito da linguagem C e similares;
 eu nunca pensaria em resolver esse problema desta forma".
 
@@ -524,14 +547,14 @@ programação funcional. É uma leitura interessante e serve como um
 exemplo de uso de funções de alta ordem (funções como valores de
 primeira classe), que o autor usa para representar as árvores de
 sintaxe abstrata. Mas dificilmente um programador funcional
-com alguma experiência usaria uma solução deste tipo. Representar
+com alguma experiência usaria uma solução desse tipo. Representar
 a AST com funções é interessante como curiosidade, mas não faz
 sentido na prática; usamos estruturas de dados para a AST porque
 um interpretador ou compilador mais sofisticado não vai apenas
 executar ou traduzir o código diretamente; vai varrer a árvore
 várias vezes, realizando vários tipos de análise no código. Isso
 é difícil, pouco prático ou impossível de fazer com _closures_,
-dependendo da linguagem.
+na maioria das linguagens.
 
 (No final do código em OCaml tem uma função que faz uma otimização
 simples nas expressões, removendo somas em que um dos operandos é
@@ -541,16 +564,23 @@ como exercício para o leitor.)
 
 Programação funcional não é apenas "programar com funções". Assim como
 com qualquer paradigma, existem alguns conceitos-chave que são usados
-como resumo para explicar do que se trata a programação funcional,
-mas também existe uma cultura, tradições, forma de resolver os problemas.
-Isso não se aprende de ouvir falar, mas na prática, escrevendo e lendo código,
-falando com pessoas mais experientes no paradigma, e lendo o que eles escrevem.
-Usar uma linguagem do paradigma é uma forma de ficar imerso nessa cultura, de
-se forçar a resolver os problemas de outra forma; é como um antropólogo que vai
+como resumo para explicar do que se trata a programação funcional, mas
+também existe uma cultura, tradições, formas recomendadas de resolver
+os problemas.  Isso não se aprende de ouvir falar, mas na prática,
+escrevendo e lendo código, falando com pessoas mais experientes no
+paradigma, e lendo o que eles escrevem.  Usar uma linguagem do
+paradigma é uma forma de ficar imerso nessa cultura, de se forçar a
+resolver os problemas de outra forma; é como um antropólogo que vai
 viver no meio do povo que ele quer entender.
+
+Sem essa imersão, é difícil realmente aprender um paradigma, por mais
+que se leia sobre ele. E aprender um paradigma significa ampliar seu
+repertório de técnicas para resolver problemas, mesmo que não use o
+paradigma diretamente na sua vida profissional.
 
 O [código original em OCaml](https://github.com/tautologico/opfp/blob/master/exp/src/exp.ml)
 está no github, em um [repositório que contém todos os exemplos](https://github.com/tautologico/opfp)
 do livro.
 
-[Código completo em Swift](https://gist.github.com/tautologico/e93ce90c8fe8bf31c9e867d24b1b8fec)
+O [código completo em Swift](https://gist.github.com/tautologico/e93ce90c8fe8bf31c9e867d24b1b8fec)
+está disponível como um gist.
