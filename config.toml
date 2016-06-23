@@ -8,6 +8,8 @@ home = "início"
 
 theme = "hyde-y"
 
+disqusShortname = "tautologico_31415"
+
 [taxonomies]
   tag = "tags"
   category = "categories"
