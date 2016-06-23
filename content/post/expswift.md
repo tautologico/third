@@ -2,7 +2,7 @@
 author = "Andrei Formiga"
 date = "2016-06-19T16:23:58-03:00"
 description = "Comparamos Swift e OCaml em um exemplo típico para programação funcional"
-draft = true
+draft = false
 tags = ["swift", "ocaml", "funcional"]
 title = "Interpretador e Compilador de expressões em Swift"
 topics = ["programação"]
