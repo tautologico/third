@@ -1,8 +1,8 @@
 +++
 author = "Andrei Formiga"
 date = "2013-01-02T01:15:11-03:00"
-description = "Livros (e um quadrinho) que falam sobre Teoria da Computação e temas relacionados, sem detalhes técnicos"
-draft = true
+description = "Livros (e um quadrinho) que falam sobre Teoria da Computação e temas relacionados, sem detalhes técnicos."
+draft = false
 keywords = ["teoria", "computação"]
 tags = ["teoria da computação", "livros"]
 title = "Leituras sobre Teoria da Computação, Parte 1"
