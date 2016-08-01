@@ -1,0 +1,28 @@
+baseurl = "http://andreiformiga.com/en/"
+languageCode = "en-us"
+title = "Andrei Formiga"
+
+metaDataFormat = "toml"
+
+theme = "hyde-y"
+
+disqusShortname = "tautologico_31415"
+
+[taxonomies]
+  tag = "tags"
+  category = "categories"
+  series = "series"
+
+[author]
+  name = "Andrei Formiga"
+
+[params]
+  topline = "math is hard, let's go shopping!"
+
+  sidebar = "left"
+
+  github = "tautologico"
+  twitter = "andreiformiga"
+  
+  highlight = "default"
+
