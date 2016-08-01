@@ -1,6 +1,6 @@
 <section id="main-content" class="container main_content homepage">
   <header class="container header">
-    <h1>Textos Recentes</h1>
+    <h1>Recent posts</h1>
     {{ partial "bloc/content/lastupdate" . }}
   </header>
   {{ $paginator := .Paginate (where .Data.Pages "Type" "post") }}
