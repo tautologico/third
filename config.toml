@@ -8,7 +8,7 @@ home = "início"
 
 theme = "hyde-y"
 
-disqusShortname = "tautologico_31415"
+disqusShortname = "andreiformigacom"
 
 [taxonomies]
   tag = "tags"
@@ -27,3 +27,6 @@ disqusShortname = "tautologico_31415"
   twitter = "andreiformiga"
   
   highlight = "default"
+
+  googleAnalytics = "UA-3998702-3"
+
