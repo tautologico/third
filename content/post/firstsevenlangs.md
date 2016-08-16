@@ -58,4 +58,26 @@ que tinha bastante material sobre programação em BASIC.
 
 ### Pascal
 
-Aqui acho que houve uma inversão na lista
+Aqui acho que houve uma inversão na lista: eu aprendi e usei Pascal
+por um tempo (não o Pascal padrão, claro, mas a variante do [Turbo
+Pascal](https://en.wikipedia.org/wiki/Turbo_Pascal) da Borland), mas
+isso foi depois do próximo item na lista.
+
+Obviamente existe uma diferença entre ter o primeiro contato com a
+linguagem, e realmente usar a linguagem para escrever pelo menos alguns
+milhares de linhas de código.
+
+Eu cheguei a conhecer Pascal na época do MSX, mas não fiz muito com
+a linguagem; não lembro mesmo se tive algum compilador Pascal
+nesse tempo.
+
+Depois, no PC, usei bastante o Turbo Pascal e cheguei a aprender
+Object Pascal lendo os manuais da Borland (isso foi bem antes
+da empresa usar o Object Pascal como linguagem de base no
+Delphi). Mas antes disso veio a próxima linguagem na lista.
+
+### Clipper
+
+Depois que meu MSX deu defeito, eu fiquei sem computador em casa por
+algum tempo (_c'est la vie_). MSX já estava desaparecendo comercialmente, e
+o que tinha agora era PC. 
