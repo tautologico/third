@@ -1,5 +1,5 @@
 baseurl = "http://andreiformiga.com/"
-languageCode = "pt-BR"
+#languageCode = "pt-BR"
 title = "Andrei Formiga"
 
 metaDataFormat = "toml"
@@ -9,6 +9,9 @@ home = "início"
 theme = "hyde-y"
 
 disqusShortname = "andreiformigacom"
+
+pygmentsStyle = "monokai"
+pygmentsUseClasses = "true"
 
 [taxonomies]
   tag = "tags"
@@ -23,10 +26,10 @@ disqusShortname = "andreiformigacom"
 
   sidebar = "left"
 
+  highlight = "default"
+  
   github = "tautologico"
   twitter = "andreiformiga"
   
-  highlight = "default"
-
   googleAnalytics = "UA-3998702-3"
 
