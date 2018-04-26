@@ -119,14 +119,13 @@ _óbvio_ que a melhor forma é usando um tipo variante ou _tipo de dado algébri
 (no inglês, _Algebraic Data Type_ ou ADT). Em OCaml isso fica da seguinte
 forma:
 
-~~~ocaml
+{{< highlight ocaml >}}
 type exp =
   | Const of int
   | Soma of exp * exp
   | Sub of exp * exp
   | Mult of exp * exp
-
-~~~
+{{< /highlight >}}
 
 A variante `Const` representa constantes inteiras (tendo um valor associado do
 tipo `int`), e as variantes `Soma`, `Sub` e `Mult` representam as operações
@@ -134,10 +133,10 @@ indicadas pelo nome. Cada operação tem dois operandos que são expressões,
 o que significa que o tipo é recursivo. A expressão `2 + 3 * 4` é representada
 em código como
 
-~~~ocaml
+{{< highlight ocaml >}}
 Soma (Const 2, Mult(Const 3, Const 4))
+{{< /highlight >}}
 
-~~~
 
 Este valor também pode ser visto graficamente, em um diagrama que deixa claro
 porque usamos tipos variantes para representar árvores sintáticas (note a
@@ -149,15 +148,14 @@ semelhança com a primeira árvore sintática vista anteriormente):
 Em Swift podemos criar um ADT usando uma `enum` na qual os casos (ou variantes)
 podem ter valores associados:
 
-~~~swift
+{{< highlight swift >}}
 enum Exp {
 	case Const(Int)
 	indirect case Soma(Exp, Exp)
 	indirect case Sub(Exp, Exp)
 	indirect case Mult(Exp, Exp)
 }
-
-~~~
+{{< /highlight >}}
 
 O caso `Const` representa constantes inteiras, contendo um valor associado do
 tipo `Int`, enquanto que os outros casos representam operações binárias.
@@ -172,11 +170,10 @@ panos, o compilador Swift vai adicionar o uso de referências quando necessário
 mas de resto os casos indiretos funcionam da mesma forma que os outros.
 
 Em Swift a expressão `2 + 3 * 4` é representada em código como:
-~~~swift
+{{< highlight swift >}}
 Exp.Soma(Exp.Const(2),
          Exp.Mult(Exp.Const(3), Exp.Const(4)))
-
-~~~
+{{< /highlight >}}
 
 A única diferença para a mesma expressão em OCaml é que em Swift é necessário
 incluir antes de cada caso o nome da `enum` (algo parecido ocorre em OCaml
@@ -191,15 +188,14 @@ função que processa um valor de um certo tipo deve ter a mesma estrutura do ti
 Se o tipo é recursivo, a função será recursiva nos mesmos pontos (obrigado,
 [HtDP](http://htdp.org/)):
 
-~~~ocaml
+{{< highlight ocaml >}}
 let rec eval e =
   match e with
     Const n -> n
   | Soma (e1, e2) -> eval e1 + eval e2
   | Sub (e1, e2) -> eval e1 - eval e2
   | Mult (e1, e2) -> eval e1 * eval e2
-
-~~~
+{{< /highlight >}}
 
 Para o caso `Const`, o valor da expressão é o valor da constante. Para os outros
 casos, é preciso obter recursivamente o valor das sub-expressões que são
@@ -211,7 +207,7 @@ quando você nunca viu antes.
 Em Swift o código é praticamente o mesmo, tirando as diferenças sintáticas
 (Swift é mais prolixa):
 
-~~~swift
+{{< highlight swift >}}
 func eval(e: Exp) -> Int {
     switch e {
         case let .Const(i):
@@ -224,15 +220,14 @@ func eval(e: Exp) -> Int {
             return eval(e1) * eval(e2)
     }
 }
-
-~~~
+{{< /highlight >}}
 
 Neste ponto já podemos fazer alguns testes no REPL ou incluindo em um arquivo
 e compilando. Os testes consistem em definir expressões no tipo `Exp` e
 executar o interpretador para verificar se o resultado está correto (aqui
 testando no REPL):
 
-~~~swift
+{{< highlight swift >}}
 1> let e1 = Exp.Soma(Exp.Const(2),
                      Exp.Mult(Exp.Const(3),
                               Exp.Const(4)))
@@ -240,8 +235,7 @@ e1: Exp ...
 
 2> eval(e1)
 $R0: Int = 14
-
-~~~
+{{< /highlight >}}
 
 Mas Swift não é uma linguagem funcional, então eventualmente vemos algumas
 diferenças quando consideramos uma máquina virtual para expressões.
@@ -284,13 +278,12 @@ Quando a máquina executa a instrução `soma`, os operandos 3 e 5 são retirado
 da pilha e o resultado da soma deles, 8, é empilhado em seguida.
 
 As instruções da máquina são representadas em Swift com o seguinte tipo:
-~~~swift
+{{< highlight swift >}}
 enum Instrucao {
     case Empilha(Int)
     case Oper(Operacao)
 }
-
-~~~
+{{< /highlight >}}
 
 (Daqui em diante não vou mostrar o código OCaml equivalente a cada trecho
 em Swift; o
@@ -302,14 +295,13 @@ No código Swift (assim como em OCaml) declaramos uma
 instrução `Oper` que representa todas as operações binárias; a operação
 específica é definida pelo tipo `Operacao`:
 
-~~~swift
+{{< highlight swift >}}
 enum Operacao {
     case OpSoma
     case OpSub
     case OpMult
 }
-
-~~~
+{{< /highlight >}}
 
 O coração de uma máquina de pilha é, obviamente, a pilha. O código em OCaml
 é puramente funcional: a função que executa uma instrução da máquina recebe
@@ -327,7 +319,7 @@ com listas funcionais, mas eu achei melhor me ater à linguagem básica.
 Por isso, a pilha é imperativa na versão Swift. Definimos um tipo para a
 pilha, agrupando a funcionalidade requerida em métodos:
 
-~~~swift
+{{< highlight swift >}}
 struct Pilha {
     var itens = [Int]()
 
@@ -349,8 +341,7 @@ struct Pilha {
         }
     }
 }
-
-~~~
+{{< /highlight >}}
 
 A pilha é implementada usando um _array_ de inteiros; _arrays_ em
 Swift são dinâmicos. Definimos um método para empilhar, um para
@@ -374,7 +365,7 @@ Em Swift podemos extender tipos já existentes, por exemplo adicionando
 novos métodos; vamos adicionar o mapeamento dos valores `Operacao` como
 um método no tipo:
 
-~~~swift
+{{< highlight swift >}}
 extension Operacao {
     func oper() -> (Int, Int) -> Int {
         switch self {
@@ -387,13 +378,12 @@ extension Operacao {
         }
     }
 }
-
-~~~
+{{< /highlight >}}
 
 Com toda a estrutura montada, definimos a função que executa uma instrução
 da máquina, dada a instrução e a pilha inicial:
 
-~~~swift
+{{< highlight swift >}}
 func execInst(i: Instrucao, inout pilha: Pilha) {
     switch i {
         case let .Empilha(i):
@@ -404,8 +394,7 @@ func execInst(i: Instrucao, inout pilha: Pilha) {
             }
     }
 }
-
-~~~
+{{< /highlight >}}
 
 A função `execInst` segue a ideia discutida antes: se a instrução for para
 empilhar, empilhe; se for uma operação, verifique se é possível desempilhar
@@ -417,7 +406,7 @@ Um programa da máquina é uma sequência de instruções, representada no códi
 por um _array_ `[Instrucao]`. Para executar um programa basta começar com uma
 pilha vazia e executar cada instrução em sequência:
 
-~~~swift
+{{< highlight swift >}}
 func execProg(prog: [Instrucao]) -> Pilha {
     var p = Pilha()
     for i in prog {
@@ -426,24 +415,22 @@ func execProg(prog: [Instrucao]) -> Pilha {
 
     return p
 }
-
-~~~
+{{< /highlight >}}
 
 Geralmente estamos interessados apenas no valor final do programa; se não houver
 nenhum problema na execução, esse valor estará no topo da pilha, ao final da
 execução. A função `executa` é definida para esse caso de uso:
 
-~~~swift
+{{< highlight swift >}}
 func executa(prog: [Instrucao]) -> Int? {
     let pilha = execProg(prog)
     return pilha.topo()
 }
-
-~~~
+{{< /highlight >}}
 
 Podemos fazer um pequeno teste, no REPL ou incluindo no arquivo fonte:
 
-~~~swift
+{{< highlight swift >}}
 let p1 = [Instrucao.Empilha(5),
           Instrucao.Empilha(7),
           Instrucao.Oper(Operacao.OpSoma),
@@ -455,8 +442,7 @@ if let res = executa(p1) {
 } else {
     print("programa sem resultado")
 }
-
-~~~
+{{< /highlight >}}
 
 Quando executado, esse código deve imprimir o resultado do programa, que é
 120.
@@ -475,7 +461,7 @@ deve ser adicionado primeiro, para deixar os argumentos na pilha na ordem
 certa para a operação que virá depois (não faz diferença para soma e
 multiplicação, mas faz para a subtração). O código é:
 
-~~~swift
+{{< highlight swift >}}
 func compila(e: Exp) -> [Instrucao] {
     switch e {
         case let .Const(i):
@@ -497,21 +483,19 @@ func compila(e: Exp) -> [Instrucao] {
             return prog
     }
 }
-
-~~~
+{{< /highlight >}}
 
 E um último teste: vamos definir uma expressão e verificar se avaliar seu
 resultado com o interpretador dá no mesmo que compilar e executar o código
 compilado:
 
-~~~swift
+{{< highlight swift >}}
 let e1 = Exp.Mult(Exp.Const(3),
                   Exp.Soma(Exp.Const(4),
                            Exp.Const(2)))
 print(eval(e1))
 print(executa(compila(e1))!)
-
-~~~
+{{< /highlight >}}
 
 Isso deve mostrar o mesmo resultado, 18, nas duas impressões.
 
